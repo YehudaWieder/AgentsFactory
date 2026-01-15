@@ -10,9 +10,13 @@ readme = "README.md"
 requires-python = ">=3.11"
 
 dependencies = [
-    "PyYAML",
-    "python-dotenv",
+    "pydantic>=2.5.0",
+    "pydantic-ai>=0.1.0",
+    "langfuse>=0.1.0",
+    "PyYAML>=6.0",
+    "python-dotenv>=1.0.0"
 ]
+
 
 [project.scripts]
 agents-factory = "agents_factory.main:create_pipeline"
