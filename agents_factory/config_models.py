@@ -81,7 +81,6 @@ class ConfigModel(BaseModel):
     @classmethod
     def validate_tool_refs(cls, v: Dict[str, ToolRefConfig]):
         all_tools = get_tools_registry()
-        print( all_tools)
         for name, cfg in v.items():
             if cfg.ref not in all_tools:
                 logger.error(f"Unknown tool reference: {cfg.ref}")
