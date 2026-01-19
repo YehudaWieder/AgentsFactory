@@ -1,10 +1,10 @@
-# AgentsFactory/agents_factory/templates/user_data/custom_tools/custom_tools_registry.py
+# AgentsFactory/agents_factory/templates/user_data/custom_tools/tools_registry.py
 """
 Registry of all custom user-defined tools.
 """
 
 from typing import Dict, Callable
-from user_data.custom_tools.custom_tools import (
+from agents_factory.templates.user_data.custom_tools.custom_tools import (
     my_tool
     )
 
