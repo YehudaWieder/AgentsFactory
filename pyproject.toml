@@ -17,6 +17,5 @@ dependencies = [
     "python-dotenv>=1.0.0"
 ]
 
-
 [project.scripts]
-agents-factory = "agents_factory.main:create_pipeline"
+agents-factory = "agents_factory.cli:init"
