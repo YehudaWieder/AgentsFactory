@@ -13,7 +13,7 @@ class UserData:
         if not self.base_path.exists():
             raise RuntimeError(
                 f"user_data folder not found at {self.base_path}. "
-                f"Run: agents-factory init"
+                f"Run: agents-factory init or provide templates_path"
             )
         self._config = None
         self._custom_tools = None
@@ -44,7 +44,12 @@ class UserData:
         Copy template user_data into base_path if not present.
         """
         if not self.base_path.exists():
+            if templates_path is None or not templates_path.exists():
+                raise RuntimeError(
+                    f"user_data folder not found at {self.base_path} and templates_path is invalid"
+                )
             copytree(templates_path, self.base_path)
+
 
 # Singleton instance
 _USER_DATA_INSTANCE = None
@@ -56,8 +61,9 @@ def get_user_data(base_path: Path = Path.cwd(), templates_path: Path = None) -> 
     """
     global _USER_DATA_INSTANCE
     if _USER_DATA_INSTANCE is None:
-        ud = UserData(base_path)
-        if templates_path is not None:
-            ud.copy_templates(templates_path)
-        _USER_DATA_INSTANCE = ud
+        # Copy templates first if needed
+        if templates_path is not None and not base_path.exists():
+            copytree(templates_path, base_path)
+        # Then create the UserData instance
+        _USER_DATA_INSTANCE = UserData(base_path)
     return _USER_DATA_INSTANCE

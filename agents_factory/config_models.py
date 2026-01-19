@@ -16,7 +16,11 @@ from pydantic import (
 from pathlib import Path
 from agents_factory.user_data_loader import get_user_data
 
-USER_DATA = get_user_data(base_path=Path.cwd(), templates_path=Path("agents_factory/templates/user_data"))
+USER_DATA = get_user_data(
+    base_path=Path.cwd() / "user_data",
+    templates_path=Path("agents_factory/templates/user_data")
+)
+
 CUSTOM_TOOLS_REGISTRY = USER_DATA.custom_tools_registry
 
 from agents_factory.built_in_tools.tools_registry import TOOLS_REGISTRY
