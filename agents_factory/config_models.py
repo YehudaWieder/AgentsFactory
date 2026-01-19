@@ -16,11 +16,7 @@ from pydantic import (
 from pathlib import Path
 from agents_factory.user_data_loader import get_user_data
 
-USER_DATA = get_user_data()
-
-CUSTOM_TOOLS_REGISTRY = USER_DATA.custom_tools_registry
-
-from agents_factory.built_in_tools.tools_registry import TOOLS_REGISTRY
+from agents_factory.built_in_tools.tools_registry import get_tools_registry
 
 from agents_factory.config_errors import ConfigError, ConfigErrorCode
 
@@ -84,8 +80,10 @@ class ConfigModel(BaseModel):
     @field_validator("tools")
     @classmethod
     def validate_tool_refs(cls, v: Dict[str, ToolRefConfig]):
+        all_tools = get_tools_registry()
+        print( all_tools)
         for name, cfg in v.items():
-            if cfg.ref not in TOOLS_REGISTRY and cfg.ref not in CUSTOM_TOOLS_REGISTRY:
+            if cfg.ref not in all_tools:
                 logger.error(f"Unknown tool reference: {cfg.ref}")
                 raise ConfigError(
                     ConfigErrorCode.UNKNOWN_TOOL_REF,

@@ -1,29 +1,29 @@
 {
   "version": 1,
   "prompts": {
-    "planner_agent": "planner_prompt_v1"
+    "planner_prompt": "planner_prompt_v1"
   },
   "tools": {
     "uuid4": {
-      "ref": "tool_uuid4"
+      "ref": "uuid4"
     },
     "now": {
-      "ref": "tool_now"
+      "ref": "now"
     },
     "today": {
-      "ref": "tool_today"
+      "ref": "today"
     },
     "iso_timestamp": {
-      "ref": "tool_iso_timestamp"
+      "ref": "iso_timestamp"
     },
     "random_choice": {
-      "ref": "tool_random_choice"
+      "ref": "random_choice"
     },
     "random_int": {
-      "ref": "tool_random_int"
+      "ref": "random_int"
     },
     "safe_get": {
-      "ref": "tool_safe_get"
+      "ref": "safe_get"
     }
   },
   "agents": {

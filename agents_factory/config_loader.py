@@ -15,10 +15,10 @@ from pydantic import ValidationError
 
 from pathlib import Path
 from agents_factory.user_data_loader import get_user_data
+from agents_factory.built_in_tools.tools_registry import get_tools_registry
 
 USER_DATA = get_user_data()
 
-CUSTOM_TOOLS_REGISTRY = USER_DATA.custom_tools_registry
 MAX_FILE_SIZE = USER_DATA.config.MAX_FILE_SIZE
 MAX_NESTING_DEPTH = USER_DATA.config.MAX_NESTING_DEPTH
 
@@ -98,9 +98,11 @@ def load_config(config_path: str | Path) -> CompiledConfig:
 
 def enhance_compiled_config(compiled: CompiledConfig) -> EnhancedCompiledConfig:
     logger.info("Enhancing compiled configuration")
+
+    all_available_tools = get_tools_registry()
     resolved_tools = {}
     for name, cfg in compiled.config.tools.items():
-        tool = TOOLS_REGISTRY.get(cfg.ref) or CUSTOM_TOOLS_REGISTRY.get(cfg.ref)
+        tool = all_available_tools.get(cfg.ref)
         if tool is None:
             raise ConfigError(
                 ConfigErrorCode.UNKNOWN_TOOL_REF,
@@ -145,4 +147,4 @@ if __name__ == "__main__":
         compiled = load_config(path)
         enhanced = enhance_compiled_config(compiled)
 
-        print("OK – config_loader basic self-test passed")
+        print("OK - config_loader basic self-test passed")
