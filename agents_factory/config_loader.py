@@ -14,9 +14,9 @@ import logging
 from pydantic import ValidationError
 
 from pathlib import Path
-from agents_factory.user_data_loader import UserData
+from agents_factory.user_data_loader import get_user_data
 
-USER_DATA = UserData(Path.cwd() / "user_data")
+USER_DATA = get_user_data(base_path=Path.cwd(), templates_path=Path("agents_factory/templates/user_data"))
 CUSTOM_TOOLS_REGISTRY = USER_DATA.custom_tools_registry
 MAX_FILE_SIZE = USER_DATA.config.MAX_FILE_SIZE
 MAX_NESTING_DEPTH = USER_DATA.config.MAX_NESTING_DEPTH

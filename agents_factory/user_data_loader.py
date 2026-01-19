@@ -5,7 +5,7 @@ Loader for user data configurations and custom tools.
 
 from pathlib import Path
 import importlib.util
-
+from shutil import copytree
 
 class UserData:
     def __init__(self, base_path: Path):
@@ -34,9 +34,30 @@ class UserData:
     @property
     def custom_tools_registry(self) -> dict:
         if self._custom_tools is None:
-            registry_path = (
-                self.base_path / "custom_tools" / "custom_tools_registry.py"
-            )
+            registry_path = self.base_path / "custom_tools" / "custom_tools_registry.py"
             module = self._load_module(registry_path, "user_custom_tools_registry")
             self._custom_tools = getattr(module, "CUSTOM_TOOLS_REGISTRY", {})
         return self._custom_tools
+
+    def copy_templates(self, templates_path: Path):
+        """
+        Copy template user_data into base_path if not present.
+        """
+        if not self.base_path.exists():
+            copytree(templates_path, self.base_path)
+
+# Singleton instance
+_USER_DATA_INSTANCE = None
+
+def get_user_data(base_path: Path = Path.cwd(), templates_path: Path = None) -> UserData:
+    """
+    Return the single instance of UserData for the project.
+    If not already created, initialize it and optionally copy templates.
+    """
+    global _USER_DATA_INSTANCE
+    if _USER_DATA_INSTANCE is None:
+        ud = UserData(base_path)
+        if templates_path is not None:
+            ud.copy_templates(templates_path)
+        _USER_DATA_INSTANCE = ud
+    return _USER_DATA_INSTANCE
