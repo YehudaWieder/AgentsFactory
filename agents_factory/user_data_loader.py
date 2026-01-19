@@ -1,21 +1,24 @@
-# AgentsFactory/agents_factory/user_data_loader.py
+# user_data_loader.py
 from pathlib import Path
 import importlib.util
-import importlib.resources as pkg_resources
-import shutil
-import tempfile
-import agents_factory.templates  # החבילה שבה מאוחסנים templates
+from shutil import copytree
 
 class UserData:
-    def __init__(self, base_path: Path):
+    def __init__(self, base_path: Path, templates_path: Path = None):
         self.base_path = base_path
+        self._config = None
+        self._custom_tools = None
+
+        # Copy templates first if base_path doesn't exist
+        if templates_path and not self.base_path.exists():
+            copytree(templates_path, self.base_path)
+
+        # Now check if user_data exists
         if not self.base_path.exists():
             raise RuntimeError(
                 f"user_data folder not found at {self.base_path}. "
                 f"Run: agents-factory init"
             )
-        self._config = None
-        self._custom_tools = None
 
     def _load_module(self, file_path: Path, module_name: str):
         spec = importlib.util.spec_from_file_location(module_name, file_path)
@@ -38,31 +41,15 @@ class UserData:
             self._custom_tools = getattr(module, "CUSTOM_TOOLS_REGISTRY", {})
         return self._custom_tools
 
-    def copy_templates(self):
-        """
-        Copy template user_data from the package into base_path if not present.
-        """
-        if not self.base_path.exists():
-            # extract the templates from the package to a temporary folder
-            with tempfile.TemporaryDirectory() as tmpdirname:
-                tmp_path = Path(tmpdirname)
-                # Copy the package templates to the temporary directory
-                for item in pkg_resources.files(agents_factory.templates).iterdir():
-                    shutil.copytree(item, tmp_path / item.name)
-                # Move from temp to the base_path
-                shutil.move(str(tmp_path), self.base_path)
-
 # Singleton instance
 _USER_DATA_INSTANCE = None
 
-def get_user_data(base_path: Path = Path.cwd()) -> UserData:
+def get_user_data(base_path: Path = Path.cwd(), templates_path: Path = None) -> UserData:
     """
     Return the single instance of UserData for the project.
-    If not already created, initialize it and copy templates from the package.
+    Ensures templates are copied before accessing config.
     """
     global _USER_DATA_INSTANCE
     if _USER_DATA_INSTANCE is None:
-        ud = UserData(base_path)
-        ud.copy_templates()
-        _USER_DATA_INSTANCE = ud
+        _USER_DATA_INSTANCE = UserData(base_path, templates_path)
     return _USER_DATA_INSTANCE

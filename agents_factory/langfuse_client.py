@@ -11,7 +11,10 @@ from dotenv import load_dotenv
 from pathlib import Path
 from agents_factory.user_data_loader import get_user_data
 
-USER_DATA = get_user_data(Path.cwd())
+USER_DATA = get_user_data(
+    base_path=Path.cwd(),
+    templates_path=Path("agents_factory/templates/user_data")
+)
 
 ENV_PATH = USER_DATA.config.ENV_PATH
 
