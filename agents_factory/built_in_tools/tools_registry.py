@@ -3,6 +3,12 @@
 Registry of all available tools, combining built-in and custom tools.
 """
 
+from pathlib import Path
+from agents_factory.user_data_loader import UserData
+
+USER_DATA = UserData(Path.cwd() / "user_data")
+CUSTOM_TOOLS_REGISTRY = USER_DATA.custom_tools_registry
+
 from typing import Dict, Callable
 from agents_factory.built_in_tools.built_in_tools import (
     tool_uuid4,
@@ -13,7 +19,7 @@ from agents_factory.built_in_tools.built_in_tools import (
     tool_safe_get,
     tool_iso_timestamp,
 )
-from user_data.custom_tools.custom_tools_registry import CUSTOM_TOOLS_REGISTRY
+
 
 TOOLS_REGISTRY: Dict[str, Callable] = {
     # ===== Core / Time =====

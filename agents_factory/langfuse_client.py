@@ -8,7 +8,11 @@ from langfuse import Langfuse
 import os
 from dotenv import load_dotenv
 
-from user_data.config import ENV_PATH
+from pathlib import Path
+from agents_factory.user_data_loader import UserData
+
+USER_DATA = UserData(Path.cwd() / "user_data")
+ENV_PATH = USER_DATA.config.ENV_PATH
 
 load_dotenv(ENV_PATH)
 

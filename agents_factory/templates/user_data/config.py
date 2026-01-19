@@ -1,4 +1,4 @@
-#AgentsFactory/user_data/config.py
+# AgentsFactory/agents_factory/templates/user_data/config.py
 """
 User configuration and security constants for AgentsFactory.
 """

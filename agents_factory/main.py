@@ -7,10 +7,14 @@ import logging
 import sys
 from pathlib import Path
 
+from pathlib import Path
+from agents_factory.user_data_loader import UserData
+
+USER_DATA = UserData(Path.cwd() / "user_data")
+AGENT_CONFIG_DEFAULT_PATH = USER_DATA.config.AGENT_CONFIG_DEFAULT_PATH
+
 from agents_factory.factory import AgentsFactory
 from agents_factory.config_loader import load_config, enhance_compiled_config
-
-from user_data.config import AGENT_CONFIG_DEFAULT_PATH
 
 
 # --- Logging setup ---

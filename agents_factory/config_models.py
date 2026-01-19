@@ -13,8 +13,13 @@ from pydantic import (
     model_validator,
 )
 
+from pathlib import Path
+from agents_factory.user_data_loader import UserData
+
+USER_DATA = UserData(Path.cwd() / "user_data")
+CUSTOM_TOOLS_REGISTRY = USER_DATA.custom_tools_registry
+
 from agents_factory.built_in_tools.tools_registry import TOOLS_REGISTRY
-from user_data.custom_tools.custom_tools_registry import CUSTOM_TOOLS_REGISTRY
 
 from agents_factory.config_errors import ConfigError, ConfigErrorCode
 

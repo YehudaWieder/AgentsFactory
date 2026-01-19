@@ -13,12 +13,18 @@ import logging
 
 from pydantic import ValidationError
 
+from pathlib import Path
+from agents_factory.user_data_loader import UserData
+
+USER_DATA = UserData(Path.cwd() / "user_data")
+CUSTOM_TOOLS_REGISTRY = USER_DATA.custom_tools_registry
+MAX_FILE_SIZE = USER_DATA.config.MAX_FILE_SIZE
+MAX_NESTING_DEPTH = USER_DATA.config.MAX_NESTING_DEPTH
+
 from agents_factory.config_models import ConfigModel
 from agents_factory.config_errors import ConfigError, ConfigErrorCode
 from agents_factory.built_in_tools.tools_registry import TOOLS_REGISTRY
 from agents_factory.langfuse_client import get_prompt
-from user_data.custom_tools.custom_tools_registry import CUSTOM_TOOLS_REGISTRY
-from user_data.config import MAX_FILE_SIZE, MAX_NESTING_DEPTH
 
 logger = logging.getLogger("CONFIG_LOADER")
 

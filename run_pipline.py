@@ -1,4 +1,4 @@
-#AgentsFactory/scripts/run_pipline.py
+#AgentsFactory/run_pipline.py
 """
 Interactive script to run the AgentsFactory pipeline with user input.
 """
