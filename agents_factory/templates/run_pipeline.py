@@ -24,7 +24,7 @@ if __name__ == "__main__":
     import asyncio
 
     pipeline = create_pipeline()
-    # factory = create_factory(config_path="user_data/software_feature_dev_config.yaml")
+    # pipeline = create_pipeline(config_path="user_data/software_feature_dev_config.yaml")
 
     while True:
         async def interactive_run():
@@ -36,7 +36,7 @@ if __name__ == "__main__":
             time.sleep(2)
             langfuse.flush()
 
-            # res2 = await factory.supervisor_agent.run(user_prompt)
+            # res2 = await pipeline.planner_agent.run(user_prompt)
             # print("Supervisor result:", res2)
 
         asyncio.run(interactive_run())
