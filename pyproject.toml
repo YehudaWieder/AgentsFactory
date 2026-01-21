@@ -19,3 +19,14 @@ dependencies = [
 
 [project.scripts]
 agents-factory = "agents_factory.cli:init"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.package-data]
+"agents_factory" = [
+    "templates/user_data/*",
+    "templates/*.yaml",
+    "templates/*.json",
+    "templates/*.env"
+]
