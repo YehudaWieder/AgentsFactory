@@ -4,11 +4,16 @@ Langfuse client: load env vars and fetch prompts by name/version.
 """
 
 
+import sys
 from langfuse import Langfuse
 import os
 from dotenv import load_dotenv
 
-from pathlib import Path
+import logging
+
+logger = logging.getLogger("LANGFUSE_CLIENT")
+
+
 from agents_factory.user_data_loader import get_user_data
 
 USER_DATA = get_user_data()
@@ -23,14 +28,22 @@ langfuse = Langfuse(
 )
 
 def get_prompt(name: str, version: str | None = None) -> str:
-    """
-    Fetch prompt from Langfuse by name (and optional version)
-    """
     try:
         if version:
-            prompt = langfuse.get_prompt(name, version=version)
-        else:
-            prompt = langfuse.get_prompt(name)  # latest version
-        return prompt
+            return langfuse.get_prompt(name, version=version)
+        return langfuse.get_prompt(name)
+
     except Exception as e:
-        raise RuntimeError(f"Failed to fetch prompt '{name}' from Langfuse: {e}")
+        msg = str(e).lower()
+
+        if "401" in msg or "403" in msg:
+            reason = "AUTH ERROR - Langfuse API keys invalid or no permission"
+        elif "404" in msg or "not found" in msg:
+            reason = f"PROMPT NOT FOUND - '{name}'"
+        elif "connection" in msg or "timeout" in msg:
+            reason = "CONNECTION ERROR - Langfuse host unreachable"
+        else:
+            reason = "UNKNOWN LANGFUSE ERROR"
+
+        logger.critical("FATAL | %s", reason, exc_info=False)
+        sys.exit(1)
