@@ -1,5 +1,7 @@
 # AgentsFactory/agents_factory/templates/init_templates.py
-
+"""
+Init script to copy template user_data and run_pipeline.py to the project directory.
+"""
 
 import shutil
 from pathlib import Path
@@ -10,10 +12,13 @@ def copy_templates():
     user_data_src = template_dir / "user_data"
     run_pipeline_src = template_dir / "run_pipeline.py"
 
-    # copy user_data
+    # copy user_data, skip __pycache__ directories
     user_data_dest = base_path / "user_data"
     if not user_data_dest.exists():
-        shutil.copytree(user_data_src, user_data_dest)
+        def ignore_pycache(dir, files):
+            return ["__pycache__"] if "__pycache__" in files else []
+        
+        shutil.copytree(user_data_src, user_data_dest, ignore=ignore_pycache)
         print(f"Copied user_data to {user_data_dest}")
     else:
         print(f"user_data already exists at {user_data_dest}")
