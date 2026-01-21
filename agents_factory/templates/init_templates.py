@@ -1,0 +1,30 @@
+# AgentsFactory/agents_factory/templates/init_templates.py
+
+
+import shutil
+from pathlib import Path
+
+def copy_templates():
+    base_path = Path.cwd()
+    template_dir = Path(__file__).parent
+    user_data_src = template_dir / "user_data"
+    run_pipeline_src = template_dir / "run_pipeline.py"
+
+    # copy user_data
+    user_data_dest = base_path / "user_data"
+    if not user_data_dest.exists():
+        shutil.copytree(user_data_src, user_data_dest)
+        print(f"Copied user_data to {user_data_dest}")
+    else:
+        print(f"user_data already exists at {user_data_dest}")
+
+    # copy run_pipeline.py
+    run_pipeline_dest = base_path / "run_pipeline.py"
+    if not run_pipeline_dest.exists():
+        shutil.copy(run_pipeline_src, run_pipeline_dest)
+        print(f"Copied run_pipeline.py to {run_pipeline_dest}")
+    else:
+        print(f"run_pipeline.py already exists at {run_pipeline_dest}")
+
+if __name__ == "__main__":
+    copy_templates()

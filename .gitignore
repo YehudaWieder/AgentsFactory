@@ -15,8 +15,4 @@ build/
 *.egg-info
 
 # User data
-user_data/*.json
-user_data/*.yaml
-user_data/*.env
-user_data/custom_tools/*.pyc
-user_data/custom_tools/*.py
+templates/user_data/custom_tools/*.pyc
