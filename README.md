@@ -8,39 +8,13 @@ Install the package directly from the GitHub repository:
 pip install git+https://github.com/YehudaWieder/AgentsFactory.git
 ```
 
-### 2. Project Initialization
+### 2. Initialize Templates
 Run the following commands to initialize your project folder with the necessary configuration files and directory structure:
 
-#### Clone only the necessary templates using sparse-checkout
-```powershell
-git clone --no-checkout --depth 1 --filter=blob:none https://github.com/YehudaWieder/AgentsFactory.git temp-repo
-cd temp-repo
-git sparse-checkout init --cone
-git sparse-checkout set agents_factory/templates/user_data agents_factory/templates/run_pipeline.py
-git checkout
-cd ..
-```
+#### To copy the default templates (`user_data` and `run_pipeline.py`) to your project, run:
 
-### Move templates to your project root (Linux/macOS syntax)
 ```bash
-mv temp-repo/agents_factory/templates/user_data ./user_data
-mv temp-repo/agents_factory/templates/run_pipeline.py ./run_pipeline.py
-```
-
-### Move templates to your project root (windows)
-```powershell
-Move-Item -Path "temp-repo\agents_factory\templates\user_data" -Destination ".\user_data" -Force
-Move-Item -Path "temp-repo\agents_factory\templates\run_pipeline.py" -Destination ".\run_pipeline.py" -Force
-```
-
-### Cleanup temporary files (Linux/macOS syntax)
-```bash
-rm -rf temp-repo
-```
-
-### Cleanup temporary files (windows)
-```powershell
-Remove-Item -Path "temp-repo" -Recurse -Force
+python -m agents_factory.templates.init_templates
 ```
 
 ---
