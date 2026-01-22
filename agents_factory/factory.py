@@ -5,8 +5,9 @@ AgentsFactory core: initialize agents, resolve tools/prompts, run pipelines.
 
 import logging
 from typing import Dict, List, Any, Callable, Optional
+import time
 
-from pydantic_ai import Agent
+from pydantic_ai import Agent, ModelSettings, UsageLimits
 from langfuse import get_client, observe
 
 from agents_factory.factory_utils import make_agent_tool, normalize_result
@@ -80,35 +81,82 @@ class AgentsFactory:
         f"and output_format: '{agent_instance.output_format}'"
         )
 
-    # --- Pipeline execution ---
-    @observe(name="Travel Planning Pipeline")
+     # --- Pipeline execution ---
     async def run_pipeline(self, user_input: str = "") -> str:
         if not self.enhanced.config.pipeline:
             raise RuntimeError("No pipeline defined in configuration")
 
+        langfuse = get_client()
+        pipeline_name = getattr(self.enhanced.config, "pipeline_name", "AgentsFactory Pipeline")
+        trace_name = f"Full {pipeline_name} Request"
+
         self.logger.info(f"Starting pipeline: {self.enhanced.config.pipeline}")
         current_input = user_input
 
-        for agent_name in self.enhanced.config.pipeline:
-            if agent_name not in self._agents:
-                raise KeyError(f"Pipeline references undefined agent: {agent_name}")
+        # --- Root Trace ---
+        with langfuse.start_as_current_observation(
+            as_type="span",
+            name=trace_name,
+            input={"user_input": user_input},
+        ) as root_trace:
 
-            agent = self._agents[agent_name]
-            self.logger.info(f"Running agent: {agent_name}")
-            try:
-                result = await agent.run(current_input)
-                
-                current_input = normalize_result(
-                    result,
-                    getattr(agent.output_format, "output_format", "str").lower(),
-                    self.logger
-                )
-                self.logger.info(f"{agent_name} completed")
-            except Exception as e:
-                self.logger.error(f"Agent {agent_name} failed in pipeline: {e}")
-                raise
-        
-        return current_input
+            for step_index, agent_name in enumerate(self.enhanced.config.pipeline):
+                if agent_name not in self._agents:
+                    raise KeyError(f"Pipeline references undefined agent: {agent_name}")
+
+                agent = self._agents[agent_name]
+
+                # instrumentation for all tools used by the agent
+                agent.instrument_all()
+
+                self.logger.info(f"Running agent: {agent_name}")
+                start_time = time.perf_counter()
+                limits = UsageLimits(request_limit=5)
+
+                # --- Span for each Agent ---
+                with langfuse.start_as_current_observation(
+                    as_type="span",
+                    name=f"agent:{agent_name}",
+                    input={
+                        "step": step_index,
+                        "input": current_input,
+                        "model": getattr(agent, "model", None),
+                    },
+                ) as agent_span:
+
+                    try:
+                        result = await agent.run(current_input, 
+                            usage_limits=limits,
+                            model_settings=ModelSettings(parallel_tool_calls=False)
+                            )
+
+                        output = normalize_result(
+                            result,
+                            getattr(agent.output_format, "output_format", "str").lower(),
+                            self.logger
+                        )
+
+                        duration = time.perf_counter() - start_time
+                        agent_span.update(output={"output": output, "duration_seconds": duration})
+
+                        if output is None or (isinstance(output, str) and output.strip() == ""):
+                            self.logger.warning(f"Agent '{agent.name}' returned empty output. Stopping execution.")
+                            break
+                        
+                        current_input = output
+                        self.logger.info(f"{agent_name} completed in {duration:.3f} seconds")
+
+                    except Exception as e:
+                        duration = time.perf_counter() - start_time
+                        agent_span.update(error=str(e), output={"duration_seconds": duration})
+                        self.logger.error(f"Agent {agent_name} failed after {duration:.3f} seconds: {e}")
+                        raise
+
+            # --- Update the final output of the root trace ---
+            root_trace.update(output=current_input)
+
+        output = current_input
+        return output
 
     def list_agents(self) -> List[str]:
         """Return available agent names."""
