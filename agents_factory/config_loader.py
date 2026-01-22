@@ -113,7 +113,7 @@ def enhance_compiled_config(compiled: CompiledConfig) -> EnhancedCompiledConfig:
     resolved_prompts = {}
     for name, prompt_ref in compiled.config.prompts.items():
         try:
-            resolved_prompts[name] = get_prompt(prompt_ref)
+            resolved_prompts[name] = get_prompt(prompt_ref).prompt
         except RuntimeError as e:
             logger.warning(f"Could not fetch prompt '{prompt_ref}': {e}")
             resolved_prompts[name] = prompt_ref
@@ -124,7 +124,7 @@ def enhance_compiled_config(compiled: CompiledConfig) -> EnhancedCompiledConfig:
     return EnhancedCompiledConfig(
         config=compiled.config,
         resolved_tools=resolved_tools,
-        resolved_prompts=dict(compiled.config.prompts),
+        resolved_prompts=resolved_prompts,
         agent_graph={},
     )
 
