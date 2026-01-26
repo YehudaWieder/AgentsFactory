@@ -49,7 +49,6 @@ def make_agent_tool(agent: Agent, agent_name: str, logger: logging.Logger) -> Ca
         try:
             result = await agent.run(input_data)
             raw_output = result.data if hasattr(result, 'data') else str(result)
-            print(agent_name, "raw output:", raw_output)
             
             normalized = normalize_result(
                     raw_output,
