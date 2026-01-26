@@ -19,11 +19,35 @@ python -m agents_factory.templates.init_templates
 
 ---
 
-### 3. Setup and Customization
+### 3. Langfuse Project Setup
+
+Before using the agents, you **must** set up a Langfuse project to manage your prompts and track agent interactions.  
+This can be done either in the cloud or locally.
+
+#### Cloud Setup:
+
+1. Go to the Langfuse dashboard: https://cloud.langfuse.com
+2. Create a new project and give it a meaningful name.
+3. **Important:** Add **all** the prompts your agents will use in this project.  
+   → Each prompt **must** have a **unique identifier** (name/version).  
+   → You cannot use prompts that were not previously created/saved in Langfuse.
+4. Generate your API keys:
+   - `LANGFUSE_PUBLIC_KEY`
+   - `LANGFUSE_SECRET_KEY`
+5. Save these keys in your `user_data/API_keys.env` file so your agents can read them.
+
+**Note:**  
+You can also run Langfuse completely locally (self-hosted) using Docker.  
+For setup instructions and docker-compose examples, see the official documentation:  
+https://langfuse.com/self-hosting
+
+---
+
+### 4. Setup and Customization
 
 ### —
 
-#### 3.1 Customize the core behavior of your factory by editing the `user_data/config.py` file. This file manages paths and security constraints.
+#### 4.1 Customize the core behavior of your factory by editing the `user_data/config.py` file. This file manages paths and security constraints.
 
    **Essential Settings:**
   
@@ -39,7 +63,7 @@ python -m agents_factory.templates.init_templates
 
 ### —
 
-#### 3.2 You need to set up your credentials in the `user_data/API_keys.env` file. This file stores the keys required for the models and tracking services.
+#### 4.2 You need to set up your credentials in the `user_data/API_keys.env` file. This file stores the keys required for the models and tracking services.
 
    **Key Requirements:**
   
@@ -51,7 +75,7 @@ python -m agents_factory.templates.init_templates
 
 ### —
 
-#### 3.3 Extend your agents' capabilities by defining unique functions and registering them in the factory. Define your logic in `user_data/custom_tools/custom_tools.py` and update the registry.
+#### 4.3 Extend your agents' capabilities by defining unique functions and registering them in the factory. Define your logic in `user_data/custom_tools/custom_tools.py` and update the registry.
 
    **Tool Implementation:**
   
@@ -65,7 +89,7 @@ python -m agents_factory.templates.init_templates
 
 ### —
 
-#### 3.4 This file `agent_config.yaml` or `agent_config.json` defines the heart of your factory: the prompts, tools, agents, and the execution flow (pipeline).
+#### 4.4 This file `agent_config.yaml` or `agent_config.json` defines the heart of your factory: the prompts, tools, agents, and the execution flow (pipeline).
 
  **Agent Configuration:**
 
