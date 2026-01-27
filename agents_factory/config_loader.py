@@ -80,6 +80,36 @@ class EnhancedCompiledConfig:
     agent_graph: Dict[str, List[str]] = field(default_factory=dict)
 
 
+def resolve_tools(tools_config: dict[str, Any]) -> dict[str, Any]:
+    """Resolve all tools from the registry based on the config."""
+    all_available_tools = get_tools_registry()
+    resolved_tools = {}
+
+    for name, cfg in tools_config.items():
+        tool = all_available_tools.get(cfg.ref)
+        if tool is None:
+            raise ConfigError(
+                ConfigErrorCode.UNKNOWN_TOOL_REF,
+                f"Tool '{name}' references undefined tool '{cfg.ref}'"
+            )
+        resolved_tools[name] = tool
+
+    return resolved_tools
+
+
+def resolve_prompts(prompts_config: dict[str, str]) -> dict[str, str]:
+    """Resolve all prompts from Langfuse, fallback to reference if not found."""
+    resolved_prompts = {}
+    for name, prompt_ref in prompts_config.items():
+        try:
+            resolved_prompts[name] = get_prompt(prompt_ref).prompt
+        except RuntimeError as e:
+            logger.warning(f"Could not fetch prompt '{prompt_ref}': {e}")
+            resolved_prompts[name] = prompt_ref
+    logger.debug(f"Resolved {len(resolved_prompts)} prompts from Langfuse")
+    return resolved_prompts
+
+
 # --- Public API ---
 def load_config(config_path: str | Path) -> CompiledConfig:
     path = Path(config_path).expanduser().resolve()
@@ -99,28 +129,11 @@ def load_config(config_path: str | Path) -> CompiledConfig:
 def enhance_compiled_config(compiled: CompiledConfig) -> EnhancedCompiledConfig:
     logger.info("Enhancing compiled configuration")
 
-    all_available_tools = get_tools_registry()
-    resolved_tools = {}
-    for name, cfg in compiled.config.tools.items():
-        tool = all_available_tools.get(cfg.ref)
-        if tool is None:
-            raise ConfigError(
-                ConfigErrorCode.UNKNOWN_TOOL_REF,
-                f"Tool '{name}' references undefined tool '{cfg.ref}'"
-            )
-        resolved_tools[name] = tool
-
-    resolved_prompts = {}
-    for name, prompt_ref in compiled.config.prompts.items():
-        try:
-            resolved_prompts[name] = get_prompt(prompt_ref).prompt
-        except RuntimeError as e:
-            logger.warning(f"Could not fetch prompt '{prompt_ref}': {e}")
-            resolved_prompts[name] = prompt_ref
-
-    logger.debug(f"Resolved {len(resolved_prompts)} prompts from Langfuse")
+    resolved_tools = resolve_tools(compiled.config.tools)
+    resolved_prompts = resolve_prompts(compiled.config.prompts)
 
     logger.debug(f"Resolved {len(resolved_tools)} tools")
+
     return EnhancedCompiledConfig(
         config=compiled.config,
         resolved_tools=resolved_tools,
