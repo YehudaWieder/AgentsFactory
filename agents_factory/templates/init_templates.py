@@ -11,6 +11,7 @@ def copy_templates():
     template_dir = Path(__file__).parent
     user_data_src = template_dir / "user_data"
     run_pipeline_src = template_dir / "run_pipeline.py"
+    run_prefect_flow_src = template_dir / "run_prefect_flow.py"
 
     # copy user_data, skip __pycache__ directories
     user_data_dest = base_path / "user_data"
@@ -30,6 +31,14 @@ def copy_templates():
         print(f"Copied run_pipeline.py to {run_pipeline_dest}")
     else:
         print(f"run_pipeline.py already exists at {run_pipeline_dest}")
+
+    # copy run_prefect_flow.py
+    run_prefect_flow_dest = base_path / "run_prefect_flow.py"
+    if not run_prefect_flow_dest.exists():
+        shutil.copy(run_prefect_flow_src, run_prefect_flow_dest)
+        print(f"Copied run_prefect_flow.py to {run_prefect_flow_dest}")
+    else:
+        print(f"run_prefect_flow.py already exists at {run_prefect_flow_dest}")
 
 if __name__ == "__main__":
     copy_templates()
